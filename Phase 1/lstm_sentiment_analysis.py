@@ -168,7 +168,7 @@ class LSTM_Sentiment_Analysis(nn.Module):
 
 # For word to vector embedding can use pretrained models like Glove(stanford opensource)
     self.embedding= nn.Embedding(vocab_size,embedding_size) # Have used the untrained embedding neural network
-    self.lstm= nn.LSTM(embedding_size,hidden_dim,n_layers,dropout=drop+prob,batch_first=True)
+    self.lstm= nn.LSTM(embedding_size,hidden_dim,n_layers,dropout=drop_prob,batch_first=True)
 
 
     #Dropout Layer
