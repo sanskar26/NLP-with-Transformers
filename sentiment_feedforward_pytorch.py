@@ -21,43 +21,36 @@ from gensim import corpora
 
 
 df= pd.read_csv("IMDB Dataset.csv") 
-print(df.head(5))
 
-print(df["sentiment"].unique())
+#print(df["sentiment"].unique())
 
 """You will find the sentiment is either postive or negative, we need to convert these values to binary values to feed it into our model"""
 
 df["sentiment"]= pd.Series(np.where(df["sentiment"]=="positive",1,0))
 
+#Plotting the Number of samples belonging to each class
 df["sentiment"].value_counts().plot.bar(title= "Sentiment Distribution in the dataset")
 plt.xlabel("Sentiments")
 plt.show()
 
-def get_data(top_n):
-    df_positive = df[df['sentiment'] == 1].head(top_n)
-    df_negative = df[df['sentiment'] == 0].head(top_n)
-    df_small = pd.concat([df_positive, df_negative])
-    return df_small
-
-df_small = get_data(5000)
-df_small["sentiment"].value_counts()
-
-"""The dataset is quite balanced with almost equal number of data for both the target variables
-
+"""
 ## Text Preprocessing:-
 
 1. Removing punctuations,symbols,html tags
 2. lemmitisation, Spelling Correction
 3. Tokenisation
-##### left possibility- removing numbers
 
-### Why do you need to preprocess this text?
-Not all the information is useful in making predictions or doing classifications. Reducing the number of words will reduce the input dimension to your model. The way the language is written, it contains lot of information which is grammar specific. Thus when converting to numeric format, word specific characteristics like capitalisation, punctuations, suffixes/prefixes etc. are redundant. Cleaning the data in a way that similar words map to single word and removing the grammar relevant information from text can tremendously reduce the vocabulary. Which methods to apply and which ones to skip depends on the problem at hand.
+Why do you need to preprocess this text?
+Not all the information is useful in making predictions or doing classifications. Reducing the number of words will reduce the input dimension to your model. 
+The way the language is written, it contains lot of information which is grammar specific.
+Thus when converting to numeric format, word specific characteristics like capitalisation, punctuations, suffixes/prefixes etc. are redundant. 
+Which methods to apply and which ones to skip depends on the problem at hand.
 """
 
 TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S+|[^A-Za-z0-9]+"
 
 """Lowercasing and removing all sorts of punctuations including html tags, urls"""
+
 
 def clean_text(text):
   text = re.sub(TEXT_CLEANING_RE,' ', str(text).lower()).strip()
@@ -66,33 +59,33 @@ def clean_text(text):
     tokens.append(token)
   return " ".join(tokens)
 
-df_small["review"]= df_small["review"].apply(lambda text: clean_text(text))
+df["review"]= df["review"].apply(lambda text: clean_text(text))
 
 lemma= WordNetLemmatizer()
+
 def lemmatize_text(text):
   return " ".join([lemma.lemmatize(word) for word in text.split()])
 
-df_small["lemmatised_text"]= df_small["review"].apply(lambda text: lemmatize_text(str(text)))
 
-df_small["tokenized_text"]=df_small["lemmatised_text"].apply(lambda text: word_tokenize(text))
-df_small["tokenized_text"]
+df["lemmatised_text"]= df["review"].apply(lambda text: lemmatize_text(str(text)))
+df["tokenized_text"]=df["lemmatised_text"].apply(lambda text: word_tokenize(text))
 
 #def stem(text):
   #ps=PorterStemmer()
   #return " ".join([ps.stem(word) for word in text.split()])
 
-#df_small["review"]= df_small["review"].apply(lambda text: stem(text))
+#df["review"]= df["review"].apply(lambda text: stem(text))
 
 #spell= SpellChecker()
 #def spellcheck(text):
   #misspelled_word= spell.unknown(text.split())
   #return " ".join([spell.correction(word) if word in misspelled_word else word for word in text.split()])
 
-#df_small["review"]= df_small["review"].apply(lambda text: spellcheck(text))
+#df["review"]= df["review"].apply(lambda text: spellcheck(text))
 
 """Splitting into train and test set:-"""
 
-X_train, X_test, Y_train, Y_test = train_test_split(df_small['tokenized_text'], df_small['sentiment'],shuffle=True,test_size=0.2,random_state=10)
+X_train, X_test, Y_train, Y_test = train_test_split(df['tokenized_text'], df['sentiment'],shuffle=True,test_size=0.2,random_state=10)
 
 X_train = X_train.reset_index()
 X_test = X_test.reset_index()
@@ -107,8 +100,30 @@ else:
   device= torch.device("cpu")
 print(device)
 
-"""## Defining the Feed forward model.
+# Function to return the dictionary
+def make_dict(df_small):
+  vocab_dict = corpora.Dictionary(df_small["tokenized_text"])
+  return vocab_dict
 
+# Make the dictionary:-
+vocab_dict = make_dict(df_small)
+
+Vocab_size = len(vocab_dict)
+# Function to make bow vector to be used as input to network
+def make_bow_vector(vocab_dict, sentence):
+  vec = torch.zeros(Vocab_size, dtype=torch.float64, device=device)
+  for word in sentence:
+      vec[vocab_dict.token2id[word]] += 1
+  return vec.view(1, -1).float()
+
+def make_target(label):
+    if label == 1:
+        return torch.tensor([1], dtype=torch.long, device=device)
+    else:
+        return torch.tensor([0], dtype=torch.long, device=device)
+
+"""
+Defining the Feed forward model.
 I have taken  hidden layer with different neurons. And to start with have considered Relu activation function
 """
 
@@ -156,33 +171,15 @@ class FeedforwardNN(nn.Module):
 
         return F.softmax(out, dim=1)
 
-# Function to return the dictionary
-def make_dict(df_small):
-  vocab_dict = corpora.Dictionary(df_small["tokenized_text"])
-  return vocab_dict
-
-# Make the dictionary:-
-vocab_dict = make_dict(df_small)
-
-Vocab_size = len(vocab_dict)
-# Function to make bow vector to be used as input to network
-def make_bow_vector(vocab_dict, sentence):
-  vec = torch.zeros(Vocab_size, dtype=torch.float64, device=device)
-  for word in sentence:
-      vec[vocab_dict.token2id[word]] += 1
-  return vec.view(1, -1).float()
-
-def make_target(label):
-    if label == 1:
-        return torch.tensor([1], dtype=torch.long, device=device)
-    else:
-        return torch.tensor([0], dtype=torch.long, device=device)
+    
 
 input_dim= Vocab_size
 hidden_dim= 500
 output_dim=2
 num_epochs=10
 learning_rate=0.1
+batch_size=100
+
 # RUN TRAINING AND TEST
 
 ff_nn_bow_model= FeedforwardNN(input_dim,hidden_dim,output_dim)
@@ -191,14 +188,7 @@ ff_nn_bow_model.to(device)
 loss_function= nn.CrossEntropyLoss()
 optimizer= optim.Adam(ff_nn_bow_model.parameters(), lr=learning_rate)
 
-#writing the loss value in a file
-ffnn_loss_file_name = "ffnn_loss.csv"
-f= open(ffnn_loss_file_name,"w")
-f.write("iter.loss")
-f.write("\n")
-losses=[]
-iter=0
-batch_size=100
+
 #starting training
 for epoch in range(num_epochs):
   train_loss=0
@@ -228,23 +218,19 @@ for epoch in range(num_epochs):
     #Updating Paramters
     optimizer.step()
 
-  f.write(str(epoch+1)+ "," + str(train_loss/len(X_train))  )
-  f.write("\n")
-  train_loss=0
+  print(str(epoch+1)+ " " + str(train_loss/len(X_train)))
+  print("\n")
+  
 
-f.close()
-
+#Evaluation
 bow_ff_nn_predictions = []
 original_lables_ff_bow = []
+
 with torch.no_grad():
     for index, row in X_test.iterrows():
         bow_vec = make_bow_vector(vocab_dict, row)
         probs = ff_nn_bow_model(bow_vec)
         bow_ff_nn_predictions.append(torch.argmax(probs, dim=1).cpu().numpy()[0])
         original_lables_ff_bow.append(make_target(Y_test["sentiment"][index]).cpu().numpy()[0])
+
 print(classification_report(original_lables_ff_bow,bow_ff_nn_predictions))
-ffnn_loss_df = pd.read_csv(ffnn_loss_file_name)
-print(len(ffnn_loss_df))
-print(ffnn_loss_df.columns)
-ffnn_plt_500_padding_100_epochs = ffnn_loss_df[' loss'].plot()
-fig = ffnn_plt_500_padding_100_epochs.get_figure()
