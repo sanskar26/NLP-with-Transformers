@@ -17,7 +17,6 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 nltk.download(["punkt","wordnet"])
-#from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import re
@@ -25,7 +24,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-#from spellchecker import SpellChecker
 from gensim import corpora
 from collections import Counter
 from torch.utils.data import DataLoader
@@ -46,15 +44,6 @@ plt.xlabel("Sentiments")
 plt.ylabel("Number of Examples")
 plt.show()
 
-# def get_data(top_n):
-#     df_positive = df[df['sentiment'] == 1].head(top_n)
-#     df_negative = df[df['sentiment'] == 0].head(top_n)
-#     df_small = pd.concat([df_positive, df_negative])
-#     return df_small
-
-# df_small = get_data(5000)
-# df_small.head()
-
 """## Text Preprocessing:-
 
 1. Removing punctuations, symbols, html tags
@@ -64,10 +53,6 @@ plt.show()
 ### Something yet to implement:--
 *  Removing numbers
 
-### Why do you need to preprocess this text?
-Not all the information is useful in making predictions or doing classifications. Reducing the number of words will reduce the input dimension to your model. The way the language is written, it contains lot of information which is grammar specific. Thus when converting to numeric format, word specific characteristics like capitalisation, punctuations, suffixes/prefixes etc. are redundant. Cleaning the data in a way that similar words map to single word and removing the grammar relevant information from text can tremendously reduce the vocabulary. 
-
-Which methods to apply and which ones to skip depends on the problem at hand.
 """
 
 TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S+|[^A-Za-z0-9]+"
@@ -81,14 +66,13 @@ def clean_text(text):
     tokens.append(token)
   return " ".join(tokens)
 
-# df_small["review"]= df_small["review"].apply(lambda text: clean_text(text))
 df["review"]= df["review"].apply(lambda text: clean_text(text))
 
 lemma= WordNetLemmatizer()
 def lemmatize_text(text):
   return " ".join([lemma.lemmatize(word) for word in text.split()])
 
-#df_small["lemmatised_text"]= df_small["review"].apply(lambda text: lemmatize_text(str(text)))
+
 df["lemmatised_text"]= df["review"].apply(lambda text: lemmatize_text(text))
 
 df["lemmatised_text"].head()
@@ -96,19 +80,6 @@ df["lemmatised_text"].head()
 # word_tokenize is pre-define function in nltk.tokenize
 df["tokenized_text"]=df["lemmatised_text"].apply(lambda text: word_tokenize(text))
 df["tokenized_text"]
-
-#def stem(text):
-  #ps=PorterStemmer()
-  #return " ".join([ps.stem(word) for word in text.split()])
-
-#df_small["review"]= df_small["review"].apply(lambda text: stem(text))
-
-#spell= SpellChecker()
-#def spellcheck(text):
-  #misspelled_word= spell.unknown(text.split())
-  #return " ".join([spell.correction(word) if word in misspelled_word else word for word in text.split()])
-
-#df_small["review"]= df_small["review"].apply(lambda text: spellcheck(text))
 
 """creating vocabulary for index based dictionary mapping of all the words."""
 
