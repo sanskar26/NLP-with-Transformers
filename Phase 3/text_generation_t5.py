@@ -65,8 +65,8 @@ for index,row in df.iterrows():
   Entertainment_output.append(c)
   
   bleu_score_finance.append(bleu(finance_text,a))
-  bleu_score_finance.append(bleu(s_literature_text,b))
-  bleu_score_finance.append(bleu(Entertainment_text,c))
+  bleu_score_scliterature.append(bleu(s_literature_text,b))
+  bleu_score_Entertainment.append(bleu(Entertainment_text,c))
 
 
 
