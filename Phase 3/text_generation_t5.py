@@ -74,4 +74,5 @@ article_dict["finance_output"]= finance_output
 article_dict["Sc_literature_output"]= literature_output
 article_dict["Entertainment_output"]= Entertainment_output
 
-# df= pd.DataFrame({"Finance_BLEU":bleu_score_finance,"Scientific_Literature_BLEU":bleu_score_scliterature,"Entertainment_Bleu":bleu_score_Entertainment)
+df= pd.DataFrame({"Finance_BLEU":bleu_score_finance,"Scientific_Literature_BLEU":bleu_score_scliterature,"Entertainment_Bleu":bleu_score_Entertainment)
+df.to_csv("T5_BLEU_score_all_domain.csv")
