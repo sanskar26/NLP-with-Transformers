@@ -2,7 +2,7 @@
 ### Learning Project part of Season of Code, IIT Bombay, 2021
 ### Mentor- Tezan Sahu,Shreya Laddha
 
-  ## Phase 1-
+  ## Phase 1- (22th March to 15th April)
 \
 The first week started with getting familiar with `pytorch` by implementing basic tensor operations and a feed forward neural network for classification task on CIFAR-dataset. Along, with that we got introduced to a very powerful text processing library in python which is **nltk** , it provides utility functions for data preprocessing/cleaning task such as removing stopwords,punctuations, Stemming and Lemmatization task , tokenisation of corpus, etc.
 \
@@ -17,7 +17,8 @@ We were supposed to code a feed forward neural net model for Sentiment analysis(
 <br/>
 Keeping the preprocessing process same, made changes in the nn Module sub-class's computation graph to incorporate GRU and LSTM architecture which solve the bottleneck of RNNs, i.e. Long term dependency Integration through Gated Mechanism which restricts unncessary information and passes relevant information.
 <br/>
-## Phase 2-
+## Phase 2-  (17th May to 31st May)
+\
 Got introduced to State-of-the Art Encoder-Decoder based Transformer models.It solved some major bottlenecks in using Recurrent neural architecture like LSTM,GRU. LSTM/GRU, i.e the Gradient vanishing and EXploding and one shot parallel data feeding. The mathematics behind self attention mechanism and it's importance is really useful not only for NLP tasks but also vision and other downstream tasks. Going Ahead, I learnt about different architectures like BERT which is a only Encoder transformer. There have been lots of other architecture created out of BERT naming a few-  `BERT`, `RoBERTa`, `XLNet` & `DistilBERT`. DistilBERT is a distiled version of BERT with almost half the parameters but fast and gives similar types of results. 
 
 ### Implementation:- 
@@ -27,7 +28,7 @@ Got introduced to State-of-the Art Encoder-Decoder based Transformer models.It s
 
 The ` HuggingFace` library proviides various open-source pre-trained models for quick integration with easy to use API and highly user-friendly. Transformers package Documentation was really helpful while using the Transformer models for transfer learning task(Fine tuning)
 
-## Phase 3-
+## Phase 3- (4th July to 17th July)
 
 * Got Introduced to Text Generation using Transformers
 * We explored State-of-the-art OPEN AI's `GPT-2` and Google's `T5` language model for auto-regressive text generation
