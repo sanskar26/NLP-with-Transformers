@@ -50,9 +50,9 @@ for index,row in df.iterrows():
   sc_literature_text= row["Sc_Literature"]
   Entertainment_text= row["Music/Entertainment"]
   
-  encoded_id_finance= tokenizer.encode(finance_text[:120],return_tensors="pt")
-  encoded_id_literature= tokenizer.encode(sc_literature_text[:120],return_tensors="pt")
-  encoded_id_Entertainment= tokenizer.encode(Entertainment_text[:120],return_tensors="pt")
+  encoded_id_finance= tokenizer.encode(finance_text[:100],return_tensors="pt")
+  encoded_id_literature= tokenizer.encode(sc_literature_text[:100],return_tensors="pt")
+  encoded_id_Entertainment= tokenizer.encode(Entertainment_text[:100],return_tensors="pt")
   
   finance_output_token= model.generate(encoded_id_finance,max_length=1000,do_sample=True,top_k=30,top_p=0.95)
   scliterature_output_token= model.generate(encoded_id_literature,max_length=1000,do_sample=True,top_p=0.95,top_k=30)
